@@ -12,6 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 class LocalNotifyManager {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
   var initSetting;
   BehaviorSubject<ReceiveNotification> get didReceiveLocalNotificationSubject =>
       BehaviorSubject<ReceiveNotification>();
@@ -133,13 +134,23 @@ class LocalNotifyManager {
     );
   }
 
-// Hergün
+// Belirlenen Saat,Dakika ve Saniyede
   Future<void> showDailyAtTimeNotification(
       int id, String title, String body, String payload, int hour,
       [int minite = 0, int second = 0]) async {
     var androidChannel = AndroidNotificationDetails(
-        "channelId 4", "channelName 4", "channelDescription 4",
-        importance: Importance.max, priority: Priority.high, playSound: true);
+      "channelId 4",
+      "channelName 4",
+      "channelDescription 4",
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('notification_sound'),
+      icon: 'icon_notification_replace',
+      largeIcon: DrawableResourceAndroidBitmap('icon_large_notification'),
+      timeoutAfter: 5000,
+      enableLights: true,
+    );
     var iosChannel =
         IOSNotificationDetails(/*sound: 'notification_sound.mp3',*/);
     var platformChannel =
@@ -156,6 +167,49 @@ class LocalNotifyManager {
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
+  }
+
+// Belirlenen Gün (Haftanın günü olarak) Saat,Dakika ve Saniyede
+  Future<void> showWeeklyAtTimeNotification(
+      int id, String title, String body, String payload, int day, int hour,
+      [int minite = 0, int second = 0]) async {
+    var androidChannel = AndroidNotificationDetails(
+      "channelId 5",
+      "channelName 5",
+      "channelDescription 5",
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('notification_sound'),
+      icon: 'icon_notification_replace',
+      largeIcon: DrawableResourceAndroidBitmap('icon_large_notification'),
+      timeoutAfter: 5000,
+      enableLights: true,
+    );
+    var iosChannel =
+        IOSNotificationDetails(/*sound: 'notification_sound.mp3',*/);
+    var platformChannel =
+        NotificationDetails(android: androidChannel, iOS: iosChannel);
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      Repeat.nextInstanceOfTimeWeek(day, hour, minite, second),
+      platformChannel,
+      payload: payload,
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+    );
+  }
+
+  Future<void> cancelNotification(int id) async {
+    flutterLocalNotificationsPlugin.cancel(id);
+  }
+
+  Future<void> cancelAllNotification() async {
+    flutterLocalNotificationsPlugin.cancelAll();
   }
 }
 

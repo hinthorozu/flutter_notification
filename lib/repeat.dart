@@ -37,12 +37,20 @@ class Repeat {
     return scheduledDate;
   }
 
-// Her Pazartesi belirlenen saatte
-  tz.TZDateTime nextInstanceOfMondayTenAM(int hour) {
-    tz.TZDateTime scheduledDate = nextInstanceOfTime(hour);
-    while (scheduledDate.weekday != DateTime.monday) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+// Her Belirlenen gün belirlenen saatte belirlenen saatte
+  static tz.TZDateTime nextInstanceOfTimeWeek(int day, int hour,
+      [int minite = 0, int second = 0]) {
+    tz.TZDateTime scheduledDate = nextInstanceOfTime(hour, minite, second);
+    try {
+      // güne bakacaksın
+      print(" First Week : " + scheduledDate.toString());
+      while (scheduledDate.weekday != day) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+      print(" Edit Week : " + scheduledDate.toString());
+      return scheduledDate;
+    } catch (e) {
+      return scheduledDate;
     }
-    return scheduledDate;
   }
 }
